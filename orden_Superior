@@ -1,0 +1,7 @@
+
+data Flor = Flor{nombreFlor :: String, aplicacion:: String, cantidadDeDemanda:: Integer} deriving Show
+
+estaOrdenadaPorDemanda :: [Flor] -> Bool
+estaOrdenadaPorDemanda [] = True
+estaOrdenadaPorDemanda [_] = True
+estaOrdenadaPorDemanda (x:y:xs) = (cantidadDeDemanda x >= cantidadDeDemanda y) && estaOrdenadaPorDemanda (y:xs)
