@@ -67,3 +67,68 @@ pierdeSegun unPeso | unPeso > 2  = unPeso *  0.9
 ghci> alcachofa cerebro
 Raton {nombre = "Cerebro", edad = 9.0, peso = 0.19, enfermedades = ["C","sarampi\243n","tuberculosis"]}
 -}
+
+hierbaMagica :: Animal -> Animal
+hierbaMagica animal = (modificarEnfermedades (const []). modificarEdad (0*) ) animal
+
+{-
+ghci> hierbaMagica cerebro
+Raton {nombre = "Cerebro", edad = 0.0, peso = 0.2, enfermedades = []}
+    -}
+
+
+medicamento :: [(Animal ->Animal)] ->Animal -> Animal
+medicamento hierbas animal = foldl (flip ($))  animal  hierbas
+
+{-
+ghci> medicamento [alcachofa, hierbaBuena, hierbaVerde "tuberculosis"] cerebro
+Raton {nombre = "Cerebro", edad = 3.0, peso = 0.19, enfermedades = ["C","sarampi\243n"]}
+-}
+
+
+antiAge :: Animal -> Animal
+antiAge animal = medicamento (replicate 3 hierbaBuena ++ [alcachofa]) animal
+
+{-
+ghci> antiAge cerebro
+Raton {nombre = "Cerebro", edad = 1.3160740129524924, peso = 0.19, enfermedades = ["C","sarampi\243n","tuberculosis"]}
+-}
+
+
+reduceFatFast :: Int -> Animal -> Animal
+reduceFatFast potencia animal = medicamento ([hierbaVerde "obesidad"] ++ replicate potencia alcachofa) animal
+
+
+{-
+ghci> reduceFatFast 5 cerebro
+Raton {nombre = "Cerebro", edad = 9.0, peso = 0.15475618749999998, enfermedades = ["C","sarampi\243n","tuberculosis"]}
+-}
+
+hierbaMilagrosa :: Animal -> Animal
+hierbaMilagrosa animal = medicamento (map hierbaVerde enfermedadesInfecciosas ) animal
+
+{-
+ghci> hierbaMilagrosa cerebro
+Raton {nombre = "Cerebro", edad = 9.0, peso = 0.2, enfermedades = ["C","sarampi\243n"]}
+-}
+
+
+cantidadIdeal f = head . filter f $ [1..] 
+
+estanMejoresQueNunca :: [Animal] -> (Animal -> Animal) -> Bool 
+estanMejoresQueNunca animales medicamento = all ((<1).peso.medicamento) animales
+
+juan = Raton "juan" 2 5 ["obesidad"]
+
+{-
+ghci> estanMejoresQueNunca [juan, cerebro] antiAge
+False
+-}
+
+potenciaIdeal :: [Animal] -> Int
+potenciaIdeal ratones = cantidadIdeal (estanMejoresQueNunca ratones. reduceFatFast)
+
+{-
+ghci> potenciaIdeal [juan, cerebro] 
+22
+-}
