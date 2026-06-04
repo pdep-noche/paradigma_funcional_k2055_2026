@@ -9,7 +9,7 @@ data Reparacion = Reparacion {dias :: Int, trabajo :: Trabajo } deriving Show
 type Trabajo = Atraccion ->Atraccion
  
 vueltaAlMundo :: Atraccion
-vueltaAlMundo = Atraccion "vueltaAMundo" 120  4 ["genial"] False []
+vueltaAlMundo = Atraccion "vueltaAMundo" 120  4 ["genial"] False [ Reparacion 3 (engrase 5)]
 
 calificacion :: Atraccion -> Double
 calificacion atraccion | (>10).duracion $ atraccion = 100
@@ -81,11 +81,29 @@ disneyNoExistis parque = all (null. reparaciones).filter ((>5).length.nombre) $ 
 ghci> disneyNoExistis [vueltaAlMundo]
 True
 -}
-
+-- Punto 4
 reparacionesPiolas :: Atraccion -> Bool
 reparacionesPiolas atraccion = sonPiolas (reparaciones atraccion) atraccion
 
 sonPiolas :: [Reparacion] -> Atraccion -> Bool
 sonPiolas [] _= True
 sonPiolas [_]  _ = True
-sonPiolas (repa: otraRepa:reparaciones) atraccion = calificacion ((trabajo repa) atraccion ) < calificacion ((trabajo otraRepa) atraccion) && sonPiolas (otraRepa:reparaciones) atraccion   
+sonPiolas (repa: otraRepa:reparaciones) atraccion = calificacion ((trabajo repa) atraccion ) < calificacion ((trabajo otraRepa) atraccion) && sonPiolas (otraRepa:reparaciones) atraccion
+
+--- Punto 5
+realizarReparaciones :: Atraccion -> Atraccion
+realizarReparaciones atraccion = ponerFueraDeMantenimiento.eliminarReparaciones.reparar $ atraccion
+
+reparar :: Atraccion -> Atraccion
+reparar unaAtraccion = foldl (\unaAtrac unaRepara ->  (trabajo unaRepara) unaAtrac)  unaAtraccion . reparaciones $ unaAtraccion
+
+eliminarReparaciones :: Atraccion -> Atraccion
+eliminarReparaciones atraccion = atraccion {reparaciones = []}
+
+ponerFueraDeMantenimiento :: Atraccion -> Atraccion
+ponerFueraDeMantenimiento atraccion = atraccion{estaEnMantenimiento = False}
+
+{-
+ghci> realizarReparaciones vueltaAlMundo
+Atraccion {nombre = "vueltaAMundo", alturaMin = 120.5, duracion = 4, opiniones = ["genial","para valientes"], estaEnMantenimiento = False, reparaciones = []}
+-}
